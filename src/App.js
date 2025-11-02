@@ -1,39 +1,43 @@
-//import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
 import Header from "./MyComponents/Header";
 import Todos from "./MyComponents/Todos";
 import Footer from "./MyComponents/Footer";
-import React,{ useState } from 'react';
- 
+import AddTodo from "./MyComponents/AddTodo";
+
 function App() {
+  const [todos, setTodos] = useState([
+    {
+      sno: 1,
+      title: "Go to the market",
+      desc: "You need to buy some vegetables"
+    },
+    {
+      sno: 2,
+      title: "Study React",
+      desc: "Finish React hooks and props today"
+    }
+  ]);
+
+  // Delete a todo
   const onDelete = (todo) => {
-    console.log("I am on delete",todo);
-    setTodos(todos.filter((e)=>{
-    return e !== todo;
-  }));
-  }
-  const [todos,setTodos] =useState([{
-    sno:1,
-    title:"Go to the market",
-    desc:"You need to go the market to get this job done"
-  },
-  {
-    sno:2,
-    title:"Go to the mall",
-    desc:"You need to go the market to get this job done"
-  },
-  {
-  sno:3,
-    title:"Go to the school",
-    desc:"You need to go the market to get this job done"
-},
-]);
+    setTodos(todos.filter((e) => e !== todo));
+  };
+
+  // Add a todo
+  const addTodo = (title, desc) => {
+    const sno = todos.length > 0 ? todos[todos.length - 1].sno + 1 : 1;
+    const myTodo = { sno, title, desc };
+    setTodos([...todos, myTodo]);
+  };
+
   return (
-  <>
- <Header/>
- <Todos todos={todos} onDelete ={onDelete}/>
- <Footer/>
-  </>
+    <>
+      <Header title="My Todo List" searchBar={false} />
+      <AddTodo addTodo={addTodo} />
+      <Todos todos={todos} onDelete={onDelete} />
+      <Footer />
+    </>
   );
 }
 
