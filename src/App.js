@@ -1,43 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import TodoItem from "./MyComponents/TodoItem";
 import "./App.css";
-import Header from "./MyComponents/Header";
-import Todos from "./MyComponents/Todos";
-import Footer from "./MyComponents/Footer";
-import AddTodo from "./MyComponents/AddTodo";
 
 function App() {
-  const [todos, setTodos] = useState([
-    {
-      sno: 1,
-      title: "Go to the market",
-      desc: "You need to buy some vegetables"
-    },
-    {
-      sno: 2,
-      title: "Study React",
-      desc: "Finish React hooks and props today"
-    }
-  ]);
+  const [todos, setTodos] = useState(() => {
+    // Load from localStorage when app starts
+    const savedTodos = localStorage.getItem("todos");
+    return savedTodos ? JSON.parse(savedTodos) : [];
+  });
 
-  // Delete a todo
-  const onDelete = (todo) => {
-    setTodos(todos.filter((e) => e !== todo));
+  const [text, setText] = useState("");
+
+  // Save todos to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
+  const addTodo = () => {
+    if (text.trim() === "") return;
+    setTodos([...todos, { id: Date.now(), text, completed: false }]);
+    setText("");
   };
 
-  // Add a todo
-  const addTodo = (title, desc) => {
-    const sno = todos.length > 0 ? todos[todos.length - 1].sno + 1 : 1;
-    const myTodo = { sno, title, desc };
-    setTodos([...todos, myTodo]);
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  const toggleComplete = (id) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
+
+  const editTodo = (id, newText) => {
+    setTodos(
+      todos.map((todo) => (todo.id === id ? { ...todo, text: newText } : todo))
+    );
   };
 
   return (
-    <>
-      <Header title="My Todo List" searchBar={false} />
-      <AddTodo addTodo={addTodo} />
-      <Todos todos={todos} onDelete={onDelete} />
-      <Footer />
-    </>
+    <div className="app">
+      <h1>To-Do List</h1>
+      <div className="input-area">
+        <input
+          type="text"
+          placeholder="Add a new task..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <button onClick={addTodo}>Add</button>
+      </div>
+
+      <div className="todo-list">
+        {todos.map((todo) => (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            deleteTodo={deleteTodo}
+            toggleComplete={toggleComplete}
+            editTodo={editTodo}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
